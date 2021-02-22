@@ -31,11 +31,44 @@
     #>
     ################################################################################################# 
 
+    <#
+    .SYNOPSIS
+        Short description
+    .DESCRIPTION
+        Long description
+    .EXAMPLE
+        PS C:\> <example usage>
+        Explanation of what the example does
+    .INPUTS
+        Inputs (if any)
+    .OUTPUTS
+        Output (if any)
+    .NOTES
+        General notes
+    #>
+    function Verb-Noun {
+        [CmdletBinding()]
+        param (
+            
+        )
+        
+        begin {
+            
+        }
+        
+        process {
+            
+        }
+        
+        end {
+            
+        }
+    } 
     # BE SURE TO CHANGE THE SOURCE FILE
-    $sourceFile = "C:\Users\mmorales\Documents\C331-A13_XChem_Blue_Thumb_Drive.xlsx"
+    $sourceFile = "C:\Users\mmorales\Documents\Copy of Confirmation&CleansingTestSpreadsheet.xlsx"
 
     # BE SURE TO CHANGE THE OUTPUT FILE
-    $outputFile = "C:\Users\mmorales\Output.txt"
+    $outputFile = "C:\Users\mmorales\Documents\Output.txt"
 
     $startRow = 2
 
@@ -48,7 +81,7 @@
     try {
         $excelApp.visible = $false
         $excelApp.DisplayAlerts = $false 
-
+        #Ensure that "Sheet" is changed to the appropriate sheet name within the original excel spreadsheet.
         $workbook = $excelApp.Workbooks.Open($sourceFile) 
         $worksheet = $workbook.WorkSheets("Sheet")
         $endRow = $worksheet.UsedRange.SpecialCells($usedCellType).Row
@@ -87,8 +120,9 @@
 $data | export-csv "C:\Users\mmorales\Github Projects\PathCleansing.csv" -NoTypeInformation
 }
 #>
+
     #Ensure the Path is correct 
-    Foreach ($path in Get-Content C:\Users\mmorales\TestingPaths.txt) {
+    Foreach ($path in Get-Content C:\Users\mmorales\Documents\Output.txt) {
     [PSCustomObject]@{
          Path   = $path
          Exists = Test-Path $path
@@ -97,6 +131,8 @@ $data | export-csv "C:\Users\mmorales\Github Projects\PathCleansing.csv" -NoType
 
     write-host -nonewline "Continue? (Y/N) "
     $response = read-host
+    if ( $response -eq "Y" ) { .\CleansingConfimation.ps1}
     if ( $response -ne "Y" ) { exit }
 
-    Get-Content "C:\Users\mmorales\TestingPaths.txt" | ForEach-Object { Move-Item -Path $_ -Destination "C:\Users\mmorales\Purgeable Folder" -Verbose}
+
+}
