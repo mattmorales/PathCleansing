@@ -46,30 +46,31 @@
     .NOTES
         General notes
     #>
-    function Verb-Noun {
-        [CmdletBinding()]
-        param (
-            
-        )
-        
-        begin {
-            
-        }
-        
-        process {
-            
-        }
-        
-        end {
-            
-        }
-    } 
-    # BE SURE TO CHANGE THE SOURCE FILE
-    $sourceFile = "C:\Users\mmorales\Documents\Copy of Confirmation&CleansingTestSpreadsheet.xlsx"
+  # BE SURE TO CHANGE THE SOURCE FILE
+$sourceFile = "C:\Users\mmorales\Documents\Copy of Confirmation&CleansingTestSpreadsheet.xlsx"
 
-    # BE SURE TO CHANGE THE OUTPUT FILE
-    $outputFile = "C:\Users\mmorales\Documents\Output.txt"
+# BE SURE TO CHANGE THE PURGEABLE LOCATION
+$purgeableLocation = "C:\Users\mmorales\Purgeable Folder"
 
+# BE SURE TO CHANGE THE OUTPUT FILE
+$outputFile = "C:\Users\mmorales\Documents\Output.txt"
+
+
+function Show-Menu
+{
+    param (
+        [string]$Title = 'Menu'
+    )
+    Clear-Host
+    Write-Host "================ $Title ================"
+    Write-Host "1: Press '1' to extract paths from excel file."
+    Write-Host "2: Press '2' to verify paths exist."
+    Write-Host "3: Press '3' to move paths to purgeable location. "
+    Write-Host "4: Press '4' to delete paths from purgeable location. "
+    Write-Host "Q: Press 'Q' to quit."
+}
+function Extract-Paths
+{
     $startRow = 2
 
     $startColumn = 5
@@ -81,6 +82,7 @@
     try {
         $excelApp.visible = $false
         $excelApp.DisplayAlerts = $false 
+        
         #Ensure that "Sheet" is changed to the appropriate sheet name within the original excel spreadsheet.
         $workbook = $excelApp.Workbooks.Open($sourceFile) 
         $worksheet = $workbook.WorkSheets("Sheet")
@@ -94,45 +96,58 @@
     }
     finally {
         $excelApp.Quit()
-    }
-
-<#
-  Shelved function to extract paths to export in csv. Shelved for later production.
-
+       
+        Write-Host "`n Process Complete!"
+    }   
+}
+function List-Paths
 {
-    $path = 'C:\Users\mmorales\Documents\TestingPaths.txt'
-
-    $files = Get-Content $path *.* -Recurse
-
-    $data = foreach ($file in $files) {
-        foreach ($pathinfo in (get-content $file.fullname)) {
-            [PSCustomObject]@{
-                Foldername = $file.directory
-                FileName   = $file.FileName
-                Reference  = $pathinfo
-                Exists     = (test-path $pathinfo)
-           }
-            
-        }
-        }
-    }
-
-$data | export-csv "C:\Users\mmorales\Github Projects\PathCleansing.csv" -NoTypeInformation
-}
-#>
-
-    #Ensure the Path is correct 
-    Foreach ($path in Get-Content C:\Users\mmorales\Documents\Output.txt) {
+    $tested_paths = foreach ($path in (Get-Content $outputFile)) {
     [PSCustomObject]@{
-         Path   = $path
-         Exists = Test-Path $path
+        PATH   = $path
+        EXISTS = Test-Path $path
     }
 }
 
-    write-host -nonewline "Continue? (Y/N) "
-    $response = read-host
-    if ( $response -eq "Y" ) { .\CleansingConfimation.ps1}
-    if ( $response -ne "Y" ) { exit }
+$tested_paths | Format-Table
+}
+function Move-Paths
+{
+        Get-Content $outputFile | ForEach-Object { Move-Item -Path $_ -Destination $purgeableLocation -Verbose }
 
+}
+ 
+function Delete-Paths
+{
+        Get-ChildItem -Path $purgeableLocation -File | Remove-Item -Verbose
+}
+do
+{
+    Show-Menu –Title 'My Menu'
+    $userInput = Read-Host "what do you want to do?"
+    switch ($userInput)
+    {
+        '1' {               
+                Extract-Paths
+            }
 
+        '2' {
+                List-Paths
+            }
+        
+        '3' {
+                Move-Paths
+            }
+
+        '4' {               
+                Delete-Paths
+            }
+
+        'q' {
+                 return
+            }
+    }
+   pause
+}
+until ($userInput -eq 'q')
 }

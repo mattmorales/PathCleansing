@@ -1,4 +1,4 @@
-
+<#
 #THIS ONE WORKED
 
 write-host -nonewline "Continue? (Y/N) "
@@ -12,3 +12,4 @@ Foreach ($path in Get-Content C:\Users\mmorales\TestingPaths.txt) {
          
         }
     }
+#>
