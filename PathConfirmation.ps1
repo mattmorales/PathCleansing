@@ -1,4 +1,4 @@
-& {
+  
     ################################################################################################
     <#
     .NOTES
@@ -19,10 +19,10 @@
         
         PART 2.
         Following the close of the excel file,the script will then utilize the powershell terminal to 
-        check if the files listed within the excel sheet created are present within the host device. 
+        check if the files Writeed within the excel sheet created are present within the host device. 
         This is done by first confirming if the user would like to continue with the script then
         creating a foreach loop to run a get-content function against the path where text file from 
-        extraction is. The loop will list if the path could be found or not. From this output, the 
+        extraction is. The loop will Write if the path could be found or not. From this output, the 
         user can determine which files were not discovered, and in turn would not be accessible to Part 
         3, implementation for uniform script will be researched at a later date.
         
@@ -39,21 +39,20 @@
     .EXAMPLE
         PS C:\> <example usage>
         Explanation of what the example does
-    .INPUTS
-        Inputs (if any)
+    .choicesS
+        choicess (if any)
     .OUTPUTS
         Output (if any)
     .NOTES
         General notes
     #>
-  # BE SURE TO CHANGE THE SOURCE FILE
-$sourceFile = "C:\Users\mmorales\Documents\Copy of Confirmation&CleansingTestSpreadsheet.xlsx"
-
+# BE SURE TO CHANGE THE SOURCE FILE
+$sourceFile = "Z:\_MFS\C501 - C600\C000596 - Innovex - Weatherford Cleansing\_Cleansing Related Files and Filters\_FINAL CLEANSING WriteS\USE ME\C596 A20 Smith TD\A20 File Keyword Hits ALL REMEDIATION (1418) CLEANSING PATHS.xlsx"
 # BE SURE TO CHANGE THE PURGEABLE LOCATION
 $purgeableLocation = "C:\Users\mmorales\Purgeable Folder"
 
-# BE SURE TO CHANGE THE OUTPUT FILE
-$outputFile = "C:\Users\mmorales\Documents\Output.txt"
+# BE SURE TO CHANGE THE OUTPUT FILE TO CORRECT LOCATION
+$outputFile = "C:\Users\mmorales\PathCleansing\PathsToDelete.txt"
 
 
 function Show-Menu
@@ -69,11 +68,11 @@ function Show-Menu
     Write-Host "4: Press '4' to delete paths from purgeable location. "
     Write-Host "Q: Press 'Q' to quit."
 }
-function Extract-Paths
+function Get-Paths
 {
     $startRow = 2
 
-    $startColumn = 5
+    $startColumn = 1
 
     $usedCellType = 11
     
@@ -85,7 +84,7 @@ function Extract-Paths
         
         #Ensure that "Sheet" is changed to the appropriate sheet name within the original excel spreadsheet.
         $workbook = $excelApp.Workbooks.Open($sourceFile) 
-        $worksheet = $workbook.WorkSheets("Sheet")
+        $worksheet = $workbook.WorkSheets("Paths")
         $endRow = $worksheet.UsedRange.SpecialCells($usedCellType).Row
 
         $rangeAddress = $worksheet.Cells.Item($startRow, $startColumn).Address() + ":" + $worksheet.Cells.Item($endRow, $startColumn).Address()
@@ -97,10 +96,10 @@ function Extract-Paths
     finally {
         $excelApp.Quit()
        
-        Write-Host "`n Process Complete!"
+        Write-Host "`n Process Completed!"
     }   
 }
-function List-Paths
+function Write-Paths
 {
     $tested_paths = foreach ($path in (Get-Content $outputFile)) {
     [PSCustomObject]@{
@@ -110,6 +109,8 @@ function List-Paths
 }
 
 $tested_paths | Format-Table
+
+Write-Host "`n Process Completed!"
 }
 function Move-Paths
 {
@@ -117,22 +118,24 @@ function Move-Paths
 
 }
  
-function Delete-Paths
+function Remove-Paths
 {
         Get-ChildItem -Path $purgeableLocation -File | Remove-Item -Verbose
+
+        Write-Host "`n Process Completed!"
 }
 do
 {
-    Show-Menu –Title 'My Menu'
-    $userInput = Read-Host "what do you want to do?"
-    switch ($userInput)
+    Show-Menu -Title 'Confirmation & Cleansing Menu'
+    $choices = Read-Host "Please select from the menu."
+    switch ($choices)
     {
         '1' {               
-                Extract-Paths
+                Get-Paths
             }
 
         '2' {
-                List-Paths
+                Write-Paths
             }
         
         '3' {
@@ -140,7 +143,7 @@ do
             }
 
         '4' {               
-                Delete-Paths
+                Remove-Paths
             }
 
         'q' {
@@ -149,5 +152,4 @@ do
     }
    pause
 }
-until ($userInput -eq 'q')
-}
+until ($choices -eq 'q')
